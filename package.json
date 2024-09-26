@@ -1,0 +1,26 @@
+{
+  "name": "vp1",
+  "version": "1.0.0",
+  "description": "veebiprogrammeerimise kursuse Express.js projekt",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://arohozi@github.com/arohozi/vp1.git"
+  },
+  "keywords": [
+    "Veebiprogrammeerimine",
+    "if24"
+  ],
+  "author": "Alina Rohozinska",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/arohozi/vp1/issues"
+  },
+  "homepage": "https://github.com/arohozi/vp1#readme",
+  "dependencies": {
+    "express": "~4.16.1"
+  }
+}
