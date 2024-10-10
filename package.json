@@ -21,6 +21,8 @@
   },
   "homepage": "https://github.com/arohozi/vp1#readme",
   "dependencies": {
-    "express": "~4.16.1"
+    "ejs": "^3.1.10",
+    "express": "^4.21.0",
+    "mysql2": "^3.11.3"
   }
 }
