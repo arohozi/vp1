@@ -1,20 +1,46 @@
 <!DOCTYPE html>
 <html lang="et">
-	<head>
-		<meta charset="utf-8">
-		<title>Alina Rohozinska</title>
-	</head>	
-	<body>
-	<img src='/banner/vp_banner_2024.png' alt='Veebiprogrammeerimise 2024 aasta kursuse bänner'>
-		<h1>Alina Rohozinska</h1>
-		<p>See leht on loodud õppetöö raames <a href='https://www.tlu.ee/' target='_blank'>Tallinnaa ülikoolis</a> ja ei sisalda tõsiseltvõetavat sisu.</p>
-		<hr>
-        <ul>
-            <li><a href="/timenow">Ajainfo</a></li>
-            <li><a href="/vanasonad">Vanasõnad</a></li>
-            <li><a href="/regvisit">Registreeri oma nime (txt põhine)</a></li>
-			<li><a href="/regvisitdb">Registreeri oma külastus</a></li>
-			<li><a href="/eestifilm">Eesti film</a></li>
-        </ul>
-	</body>
+<head>
+<meta charset="UTF-8">
+
+
+</head>
+<body>
+<img src="/banner/vp_banner_2024.png"alt="Veebiprogrameerimise 2024 aasta kursuse bänner">
+ <h1>Alina Rohozinska</h1>
+ 
+
+<p>See leht loodus õppetöö raames <a href= "https://www.tlu.ee/" target="_blank">Tallinna Ülikoolis</a> ja ei sisalda tõsiseltvõetavat sisu.</p>
+
+<p> loodan et kõik töötab <br>
+webprogrameerimine äge asi <br>
+Esimest korda teen seda
+<p>
+	2.septembrist moodunud <%= locals.dateDifference %> päevad.
+</p>
+<h2>Kõige viimane uudis</h2>
+<ul>
+	<h3><%= locals.newsTitle %></h3>
+	<p>Lisatud on: <%= locals.newsDate %></p>
+	<p><%= locals.newsDesc %></p>
+  </ul>
+
+</p>
+<hr>
+<ul>
+<li><a href="/timenow">Ajainfo</a></li>
+<li><a href="/vanasonad">Vanasõnad</a></li>
+<li><a href="/regvisit">Registreeri oma külastus (txt põhine)</a></li>
+<li><a href="/regvisitdb">Registreeri oma külastus</a></li>
+<li><a href="/eestifilm">Eesti film</a></li>
+<li><a href="/visitlogdb">Külastuste logi (DB) </a></li>
+<li><a href="/3vorm">Lisa</a></li>
+<li><a href="/addnews">Lisa uudis</a></li>
+<li><a href="/uudislist">Uudiste lugemise leht</a></li>
+<li><a href="/photoupload">Lea üles galeriipilt</a></li>
+<li><a href="/signup">Loo kasutajakonto</a></li>
+<li><a href="/signin">Logi sisse</a></li>
+</ul>
+
+</body>
 </html>

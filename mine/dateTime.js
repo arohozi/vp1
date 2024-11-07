@@ -3,6 +3,7 @@ const monthNamesEt = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni",
 
 const dateFormatted = function(){	
 	let timeNow = new Date();
+	//let specdate = new Date ("12-271939");
 	let dateNow = timeNow.getDate();
 	let monthNow = timeNow.getMonth();
 	let yearNow = timeNow.getFullYear();

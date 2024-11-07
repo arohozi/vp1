@@ -12,13 +12,13 @@
 
     <h2>Külastuste logi</h2> 
     <hr>
-    <ul>
-	<%listData.forEach(function(item){ %>
-	<li><%= item %></li>
-	<% }); %>
+   <ul><% visitData.forEach(function(visit) { %>
+            <li><%= visit.first_name %> <%= visit.last_name %> külastas ajal: <%= visit.visit_time %></li>
+        <% }); %>
+   </ul>
 	
         <li><a href="/">Avaleht</a></li> 
-        <li><a href="/regvisit">Registreeri oma külastus</a></li> 
+        <li><a href="/regvisitdb">Registreeri oma külastus</a></li> 
         <li><a href="/timenow">Ajainfo</a></li>
         <li><a href="/vanasõnad">Vanasõnad</a></li> 
     </ul>

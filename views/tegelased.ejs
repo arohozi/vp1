@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html lang="et">
-	<head>
-		<meta charset="utf-8">
-		<title>Alina Rohozinska</title>
-	</head>	
-	<body>
-	<img src='/banner/vp_banner_2024.png' alt='Veebiprogrammeerimise 2024 aasta kursuse bänner'>
-		<h1>Alina Rohozinska</h1>
-		<p>See leht on loodud õppetöö raames <a href='https://www.tlu.ee/' target='_blank'>Tallinnaa ülikoolis</a> ja ei sisalda tõsiseltvõetavat sisu.</p>
-		<hr>
-		<h2>Eesti film</h2>
-        <ul>
-            <li><a href="/">Avaleht</a></li>	
-            <li><a href="/eestifilm">Eesti filmi avaleht</a></li>
-        </ul>
-		<hr>
-		<h2>Eesti filmitegelased</h2>
-		<ul>
-			<% persons.forEach(function(item){ %>
-            <li><%= item.first_name %><%= item.last_name %>, sündinud <%= item.birth_date %></li>
-            <% }); %>
-		</ul>
-	
-      
-	</body>
+<head>
+<meta charset="UTF-8">
+
+
+</head>
+<body>
+<img src="/banner/vp_banner_2024.png"alt="Veebiprogrameerimise 2024 aasta kursuse bänner">
+ <h1>Aleksandra </h1>
+ 
+
+<p>See leht loodus õppetöö raames <a href= "https://www.tlu.ee/" target="_blank">Tallinna Ülikoolis</a> ja ei sisalda tõsiseltvõetavat sisu.</p>
+
+<p> loodan et kõik töötab <br>
+webprogrameerimine äge asi <br>
+Esimest korda teen seda
+
+</p>
+<hr>
+<ul>
+<li><a href="/">Avaleht</a></li>
+<li><a href="/eestifilm">Eesti filmi avaleht</a></li>
+</ul>
+<hr>
+<h2>Eesti filmitegelased</h2>
+<ul>
+  <% persons.forEach(function(item){ %>
+  <li><%= item.first_name %> <%= item.last_name %>, sündinud <%= item.birth_date %></li>
+  <% }); %>
+</ul>
+
+
+</body>
 </html>

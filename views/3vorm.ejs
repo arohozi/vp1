@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+<meta charset="UTF-8">
+
+
+</head>
+<body>
+<img src="/banner/vp_banner_2024.png"alt="Veebiprogrameerimise 2024 aasta kursuse bänner">
+ <h1>Aleksandra </h1>
+ 
+
+<p>See leht loodus õppetöö raames <a href= "https://www.tlu.ee/" target="_blank">Tallinna Ülikoolis</a> ja ei sisalda tõsiseltvõetavat sisu.</p>
+
+<p> loodan et kõik töötab <br>
+webprogrameerimine äge asi <br>
+Esimest korda teen seda
+
+</p>
+<hr>
+<h2>Lisa andmeid</h2>
+
+<form action="/addperson" method="POST">
+    <h3>Filmitegelase lisamine</h3>
+    <label for="firstName">Eesnimi:</label>
+    <input type="text" id="firstName" name="firstName" required>
+    <label for="lastName">Perekonnanimi:</label>
+    <input type="text" id="lastName" name="lastName" required>
+	<label for="birthDate">Sünniaeg:</label>
+    <input type="text" name="birthDate" id="birthDate" value="">
+    <input type="submit" name="personSubmit" value="Lisa isik">
+</form>
+
+<form action="/addfilm" method="POST">
+    <h3>Filmi lisamine</h3>
+    <label for="title">Filmi nimi:</label>
+    <input type="text" id="filmName" name="title" required>
+	<label for="productionYear">Tootmis aasta:</label>
+    <input type="text" id="productionYear" name="productionYear" required>
+	<label for="duration">Kestus (minutites):</label>
+    <input type="text" id="duration" name="duration" required>
+	<label for="description">Kirjeldus:</label>
+	<input type="text" id="description" name="description" required>
+    <input type="submit" name="filmSubmit" value="Lisa film">
+</form>
+
+<form action="/addrole" method="POST">
+    <h3>Tegelase rolli lisamine</h3>
+    <label for="roleName">Rolli nimi:</label>
+    <input type="text" id="roleName" name="positionName" required>
+	<label for="description">Kirjeldus:</label>
+	<input type="text" id="description" name="description" required>
+    <input type="submit" name="roleSubmit" value="Lisa roll">
+</form>
+
+
+<ul>
+<li><a href="/">Avaleht</a></li>
+<li><a href="/eestifilm/tegelased">Eesti filmitegelased</a></li>
+
+</ul>
+<hr>
+
+
+</body>
+</html>
