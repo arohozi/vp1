@@ -9,8 +9,10 @@ const bodyparser = require ("body-parser");
 const multer = require("multer");
 const sharp = require("sharp");
 const bcrypt = require("bcrypt");
+const session = require("express-session");
 
 const app = express();
+app.use(session({secret: "minuAbsoluutseltSalajanaeAsi", saveUninitialized: true, resave: true}));
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyparser.urlencoded({extended: true}));
@@ -24,6 +26,23 @@ const conn = mysql.createConnection({
 	password: dbInfo.configData.passWord,
 	database: dbInfo.configData.dataBase
 });
+
+const checkLogin = function(req, res, next){
+	if(req.session != null){
+		if(req.session.userId){
+			console.log("Login, sees kasutaja: " + req.session.userId);
+			next();
+		}
+		else {
+			console.log("login not detected");
+			res.redirect("/signin");
+		}
+	}
+	else {
+		console.log("sessiont not detected");
+		res.redirect("/signin");
+	}
+}
 
 app.get("/", (req,res) => {
 	const semStartDate = new Date("2024-09-02")
@@ -70,30 +89,43 @@ app.post("/signin", (req, res)=>{
 					bcrypt.compare(req.body.passwordInput, result[0].password, (err, compareresult)=>{
 						if(err){
 							notice = "Tehniline viga, sisselogimine ebaõnnestus!";
-							res.render("index.ejs", {notice: notice});
+							res.render("signin", {notice: notice});
 						}
 						else {
 							//kas õige v vale parool
 							if(compareresult){
-								notice = "Oled sisse loginud!";
-								res.render("index.ejs", {notice: notice});
+								//notice = "Oled sisse loginud!";
+								//res.render("signin", {notice: notice});
+								req.session.userId = result[0].id;
+								res.redirect("/home");
 							}
 							else {
 								notice = "Kasutajatunnus ja/või parool on vale!";
-								res.render("index.ejs", {notice: notice});
+								res.render("signin", {notice: notice});
 							}
 						}
 					});
 				}
 				else {
 					notice = "Ksutajatunnus ja/või parool on vale!";
-					res.render("index.ejs", {notice: notice});
+					res.render("signin", {notice: notice});
 				}
 			}
 			
 		});//conn.execute lõppeb
 	}
 	//res.render("index.ejs");
+});
+
+app.get("/home", checkLogin, (req, res)=>{
+	console.log("Sees on kasutja: " + req.session.userId);
+	res.render("home");
+});
+
+app.get("/logout", (req, res)=>{
+	req.session.destroy();
+	console.log("Välja logitud");
+	res.redirect("/");
 });
 
 app.get("/signup", (req, res)=>{
@@ -457,6 +489,26 @@ app.post("/photoupload",upload.single("photoInput"), (req,res)=>{
 			res.render("photoupload");
 		}
 	});
+});
+
+app.get("/gallery", (req, res)=>{
+	let sqlReq = "SELECT file_name, alt_text FROM photos WHERE privacy = ? AND deleted IS NULL ORDER BY id DESC";
+	const privacy = 3;
+	let photoList = [];
+	conn.query(sqlReq, [privacy], (err, result)=>{
+		if(err){
+			throw err;
+		}
+		else {
+			console.log(result);
+			for(let i = 0; i < result.length; i ++) {
+				photoList.push({href: "/gallery/thumb/" + result[i].file_name, alt: result[i].alt_text, fileName: result[i].file_name});
+			}
+		
+			res.render("gallery", {listData: photoList});
+		}
+	});
+	//res.render("gallery");
 });
 	
 app.listen(5151);
