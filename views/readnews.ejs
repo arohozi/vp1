@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Alina Rohozinska, veebiprogrammeerimine 2024</title>
+</head>
+<body>
+	<img src="/banner/vp_banner_2024.png" alt="Veebiprogrammeerimise kursuse bänner">
+	<h1>Uudised</h1>
+	<ul>
+		<li><a href="/news">Uudiste avaleht</a></li>
+		<li><a href="/home">Avalehele</a></li>
+	</ul>
+	<hr>
+	<h2>Viimased uudised</h2>
+	<ul>
+	<% news.forEach(function(item){ %>
+		 <li><a href="/news/read/<%= item.id %>"><%= item.news_title %></a></li>
+	<% }); %>
+	</ul>
+</body>
+</html>

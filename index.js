@@ -10,6 +10,7 @@ const multer = require("multer");
 const sharp = require("sharp");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
+const async = require("async");
 
 const app = express();
 app.use(session({secret: "minuAbsoluutseltSalajanaeAsi", saveUninitialized: true, resave: true}));
@@ -43,6 +44,23 @@ const checkLogin = function(req, res, next){
 		res.redirect("/signin");
 	}
 }
+
+function getUserInfo(req, type) {
+	if (type === "id") {
+	  return req.session.userId
+	} else if (type === "full_name") {
+	  const id = req.session.userId
+	  let sqlReq = "SELECT first_name, last_name FROM users WHERE id = ?";
+	  conn.query(sqlReq, [id], (err, sqlres) => {
+		if (err) {
+		  return 'Anonüümne'
+		} else {
+			console.log(`Returned ${sqlres[0].first_name} ${sqlres[0].last_name}`)
+		  	return `${sqlres[0].first_name} ${sqlres[0].last_name}`
+		}
+	  });
+	}
+  }
 
 app.get("/", (req,res) => {
 	const semStartDate = new Date("2024-09-02")
@@ -271,11 +289,20 @@ app.post("/regvisitdb", (req, res)=>{
 	}
 });
 
-app.get("/eestifilm", (req, res)=>{
-	res.render("filmindex");
-});	
+app.get("/eestifilm", checkLogin, async (req, res)=>{
+	const id = req.session.userId
+	let sqlReq = "SELECT first_name, last_name FROM users WHERE id = ?";
+	conn.query(sqlReq, [id], (err, sqlres) => {
+	  if (err) {
+		res.render("filmindex", { fullName: `Error` });
+	  } else {
+		  res.render("filmindex", { fullName: `${sqlres[0].first_name} ${sqlres[0].last_name}` });
+	  }
+	});	
+})
 
-app.get("/eestifilm/tegelased", (req, res)=>{
+app.get("/eestifilm/tegelased", checkLogin, (req, res)=>{
+	const fullName = getUserInfo(req, 'full_name');
 	let sqlReq = "SELECT first_name, last_name, birth_date FROM person";
 	let persons = [];
 	conn.query(sqlReq, (err, sqlres)=>{
@@ -293,26 +320,83 @@ app.get("/eestifilm/tegelased", (req, res)=>{
 			for (let i = 0; i < sqlres.length; i ++){
 				persons.push({first_name: sqlres[i].first_name, last_name: sqlres[i].last_name,birth_date: dtEt.givenDateFormatted(sqlres[i].birth_date)});
 			}
-			res.render("tegelased", {persons: persons});	
+			res.render("tegelased", {persons: persons, fullName: fullName});	
 			
 		}
 	});
 	//res.render("tegelased");
 });
 
+app.get("/eestifilm/lisaSeos", (req, res) => {
+	//async! et korraga teha mitu andmebaasipäringut
+	const filmQueries = [
+		function(callback){
+			let sqlReq1 = "SELECT id, first_name, last_name, birth_date FROM person"
+			conn.execute(sqlReq1, (err, result)=>{
+				if(err){
+					return callback(err);
+				}
+				else {
+					return callback(null, result);
+				}
+			});
+		},
+		function(callback){
+			let sqlReq2 = "SELECT id, title, production_year FROM movie"
+			conn.execute(sqlReq2, (err, result)=>{
+				if(err){
+					return callback(err);
+				}
+				else {
+					return callback(null, result);
+				}
+			});
+		},
+		function(callback){
+			let sqlReq3 = "SELECT id, position_name FROM position"
+			conn.execute(sqlReq3, (err, result)=>{
+				if(err){
+					return callback(err);
+				}
+				else {
+					return callback(null, result);
+				}
+			});
+		}
+	];
+	//paneme need päringud funktsioonid paralleelselt käima, tulemuseks saame kolme päringu koondi
+	async.parallel(filmQueries, (err, results)=>{
+		if(err){
+			throw err;
+		}
+		else{
+			console.log(results);
+			res.render("addRelations", {personList: results[0], movieList: results[1], positionList: results[2] });
+		}
+	});
+	//res.render("addRelations");
+});
+
+//UUDISTE OSA ERALDI MARSRUUDILE FAILIGA
+const newsRouter= require("./routes/newsRoutes");
+app.use("/news", newsRouter);
+
+
 //uus asi!!!!!!!!!16.10
-app.get("/visitlogdb", (req, res) => {
+app.get("/visitlogdb", checkLogin, (req, res) => {
+	const fullName = getUserInfo(req, 'full_name');
     let sql = "SELECT first_name, last_name, visit_time FROM visitlog";
     conn.query(sql, (err, results) => {
         if (err) {
             throw err;
         }
-        res.render("visitlogdb", { visitData: results });
+        res.render("visitlogdb", { visitData: results, fullName: fullName });
     });
 });
 
 
-app.get("/3vorm", (req, res) => {
+app.get("/3vorm", checkLogin, (req, res) => {
+	const fullName = getUserInfo(req, 'full_name');
     let notice = "";
     let firstName = "";
 	let lastName = "";
@@ -321,7 +405,7 @@ app.get("/3vorm", (req, res) => {
     let positionName = "";
 	let productionYear = "";
 	let description = "";
-    res.render("3vorm", {notice: notice,firstName: firstName, lastName: lastName,title: title,positionName: positionName});
+    res.render("3vorm", {notice: notice,firstName: firstName, lastName: lastName,title: title,positionName: positionName, fullName: fullName });
 });
 
 app.post("/addperson", (req, res) => {
@@ -407,7 +491,8 @@ app.post("/addrole", (req, res) => {
 
 //uuuuus aasi !!!!!!!!!
 
-app.get("/addnews", (req,res)=>{
+app.get("/addnews", checkLogin, (req,res)=>{
+	const fullName = getUserInfo(req, 'full_name');
 	const today = new Date();
 	const expDate = new Date(today);
 	expDate.setDate(today.getDate() + 10);
@@ -419,11 +504,12 @@ app.get("/addnews", (req,res)=>{
 	console.log("ya ne ponimayu", formattedDate)
 	res.render("addnews", {
 		expDate: formattedDate,
-		notice: ''
+		notice: '',
+		fullName: fullName
 	});
 });
 
-app.post("/addnews", (req,res)=>{
+app.post("/addnews", checkLogin, (req,res)=>{
 	let notice = "";
 	const { titleInput, newsInput, expireInput } = req.body
 	if (!titleInput || !expireInput || !newsInput) {
@@ -444,7 +530,8 @@ app.post("/addnews", (req,res)=>{
 		}
 	});
 });
-app.get("/uudislist", (req, res)=>{
+app.get("/uudislist", checkLogin, (req, res)=>{
+	const fullName = getUserInfo(req, 'full_name');
 	let folkWisdom = [];
 	let sqlReq = "SELECT * FROM news WHERE expire_date >= ?";
 	const now = Math.floor(Date.now() / 1000)
@@ -459,15 +546,16 @@ app.get("/uudislist", (req, res)=>{
 				const date = new Date(item.news_date)
 				item.news_date = date.toUTCString()
 			})
-			res.render ("uudislist", {listData: sqlres});
+			res.render ("uudislist", {listData: sqlres, fullName: fullName});
 		}
 	});
 });
-app.get("/photoupload", (req, res)=>{
-	res.render("photoupload");
+app.get("/photoupload", checkLogin, (req, res)=>{
+	const fullName = getUserInfo(req, 'full_name');
+	res.render("photoupload", { fullName: fullName });
 });
 
-app.post("/photoupload",upload.single("photoInput"), (req,res)=>{
+app.post("/photoupload", checkLogin, upload.single("photoInput"), (req,res)=>{
 	console.log(req.body);
 	console.log(req.file);
 	//genereerima oma failinime
@@ -491,7 +579,8 @@ app.post("/photoupload",upload.single("photoInput"), (req,res)=>{
 	});
 });
 
-app.get("/gallery", (req, res)=>{
+app.get("/gallery", checkLogin, (req, res)=>{
+	const fullName = getUserInfo(req, 'full_name');
 	let sqlReq = "SELECT file_name, alt_text FROM photos WHERE privacy = ? AND deleted IS NULL ORDER BY id DESC";
 	const privacy = 3;
 	let photoList = [];
@@ -505,7 +594,7 @@ app.get("/gallery", (req, res)=>{
 				photoList.push({href: "/gallery/thumb/" + result[i].file_name, alt: result[i].alt_text, fileName: result[i].file_name});
 			}
 		
-			res.render("gallery", {listData: photoList});
+			res.render("gallery", {listData: photoList, fullName: fullName});
 		}
 	});
 	//res.render("gallery");
