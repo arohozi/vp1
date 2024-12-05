@@ -5,12 +5,8 @@ const dbInfo = require("../../vp2024config");
 const mysql = require("mysql2");
 //päringu lahtiharutamiseks POST päringute puhul
 const bodyparser = require ("body-parser");
-//failide üleslaadimiseks
-const multer = require("multer");
-const sharp = require("sharp");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
-const async = require("async");
 
 const app = express();
 app.use(session({secret: "minuAbsoluutseltSalajanaeAsi", saveUninitialized: true, resave: true}));
@@ -18,7 +14,16 @@ app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyparser.urlencoded({extended: true}));
 //seadistame vahevara multer fotode laadimiseks kindlasse kataloogi
-const upload = multer({dest: "./public/gallery/orig/"});
+
+//UUDISTE OSA ERALDI MARSRUUDILE FAILIGA
+const newsRouter= require("./routes/newsRoutes");
+const eestiFilmRouter = require("./routes/eestiFilmRoutes");
+const galleryRouter = require("./routes/galeriiRoutes");
+const photoRouter = require("./routes/fotoRoutes");
+app.use("/news", newsRouter);
+app.use("/eestifilm", eestiFilmRouter);
+app.use("/gallery", galleryRouter);
+app.use("/photoupload", photoRouter);
 
 //loon andmebaasiühenduse
 const conn = mysql.createConnection({
@@ -289,98 +294,6 @@ app.post("/regvisitdb", (req, res)=>{
 	}
 });
 
-app.get("/eestifilm", checkLogin, async (req, res)=>{
-	const id = req.session.userId
-	let sqlReq = "SELECT first_name, last_name FROM users WHERE id = ?";
-	conn.query(sqlReq, [id], (err, sqlres) => {
-	  if (err) {
-		res.render("filmindex", { fullName: `Error` });
-	  } else {
-		  res.render("filmindex", { fullName: `${sqlres[0].first_name} ${sqlres[0].last_name}` });
-	  }
-	});	
-})
-
-app.get("/eestifilm/tegelased", checkLogin, (req, res)=>{
-	const fullName = getUserInfo(req, 'full_name');
-	let sqlReq = "SELECT first_name, last_name, birth_date FROM person";
-	let persons = [];
-	conn.query(sqlReq, (err, sqlres)=>{
-		if(err){
-			throw err;
-		}
-		else {
-			console.log(sqlres);
-		
-			//persons = sqlres;
-			//for   i   algab  0 piiriks sqlres.length
-			//tsükli sees lisame persons listile uue elemendi,mis on ise "object"{first_name: sqlres[i].first_name}
-			//listi liisamiseks on käsk
-			//push.persons(lisatav element);
-			for (let i = 0; i < sqlres.length; i ++){
-				persons.push({first_name: sqlres[i].first_name, last_name: sqlres[i].last_name,birth_date: dtEt.givenDateFormatted(sqlres[i].birth_date)});
-			}
-			res.render("tegelased", {persons: persons, fullName: fullName});	
-			
-		}
-	});
-	//res.render("tegelased");
-});
-
-app.get("/eestifilm/lisaSeos", (req, res) => {
-	//async! et korraga teha mitu andmebaasipäringut
-	const filmQueries = [
-		function(callback){
-			let sqlReq1 = "SELECT id, first_name, last_name, birth_date FROM person"
-			conn.execute(sqlReq1, (err, result)=>{
-				if(err){
-					return callback(err);
-				}
-				else {
-					return callback(null, result);
-				}
-			});
-		},
-		function(callback){
-			let sqlReq2 = "SELECT id, title, production_year FROM movie"
-			conn.execute(sqlReq2, (err, result)=>{
-				if(err){
-					return callback(err);
-				}
-				else {
-					return callback(null, result);
-				}
-			});
-		},
-		function(callback){
-			let sqlReq3 = "SELECT id, position_name FROM position"
-			conn.execute(sqlReq3, (err, result)=>{
-				if(err){
-					return callback(err);
-				}
-				else {
-					return callback(null, result);
-				}
-			});
-		}
-	];
-	//paneme need päringud funktsioonid paralleelselt käima, tulemuseks saame kolme päringu koondi
-	async.parallel(filmQueries, (err, results)=>{
-		if(err){
-			throw err;
-		}
-		else{
-			console.log(results);
-			res.render("addRelations", {personList: results[0], movieList: results[1], positionList: results[2] });
-		}
-	});
-	//res.render("addRelations");
-});
-
-//UUDISTE OSA ERALDI MARSRUUDILE FAILIGA
-const newsRouter= require("./routes/newsRoutes");
-app.use("/news", newsRouter);
-
 
 //uus asi!!!!!!!!!16.10
 app.get("/visitlogdb", checkLogin, (req, res) => {
@@ -550,54 +463,6 @@ app.get("/uudislist", checkLogin, (req, res)=>{
 		}
 	});
 });
-app.get("/photoupload", checkLogin, (req, res)=>{
-	const fullName = getUserInfo(req, 'full_name');
-	res.render("photoupload", { fullName: fullName });
-});
 
-app.post("/photoupload", checkLogin, upload.single("photoInput"), (req,res)=>{
-	console.log(req.body);
-	console.log(req.file);
-	//genereerima oma failinime
-	const fileName = "vp_" + Date.now() + ".jpg";
-	//nimetame üleslaetud faili ümber
-	fs.rename(req.file.path, req.file.destination + fileName, (err)=>{
-		console.log(err);
-	});
-	sharp(req.file.destination + fileName).resize(800,600).jpeg({quality: 90}).toFile("./public/gallery/normal/" + fileName);
-	sharp(req.file.destination + fileName).resize(100,100).jpeg({quality: 90}).toFile("./public/gallery/thumb/" + fileName);
-	//salvestame andmebaasiühenduse
-	let sqlReq = "INSERT INTO photos (file_name, orig_name, alt_text, privacy, user_id) VALUES(?,?,?,?,?)";
-	const userId = 1;
-	conn.query(sqlReq, [fileName, req.file.originalname, req.body.altInput, req.body.privacyInput, userId], (err, result)=>{
-		if(err){
-			throw err;
-		}
-		else {
-			res.render("photoupload");
-		}
-	});
-});
-
-app.get("/gallery", checkLogin, (req, res)=>{
-	const fullName = getUserInfo(req, 'full_name');
-	let sqlReq = "SELECT file_name, alt_text FROM photos WHERE privacy = ? AND deleted IS NULL ORDER BY id DESC";
-	const privacy = 3;
-	let photoList = [];
-	conn.query(sqlReq, [privacy], (err, result)=>{
-		if(err){
-			throw err;
-		}
-		else {
-			console.log(result);
-			for(let i = 0; i < result.length; i ++) {
-				photoList.push({href: "/gallery/thumb/" + result[i].file_name, alt: result[i].alt_text, fileName: result[i].file_name});
-			}
-		
-			res.render("gallery", {listData: photoList, fullName: fullName});
-		}
-	});
-	//res.render("gallery");
-});
 	
 app.listen(5151);

@@ -1,0 +1,49 @@
+<!DOCTYPE html >
+<html lang = "en" >
+<meta charset = "UTF-8" >
+<meta name = "viewport" content = "width=device-width, initial-scale=1.0" >
+<title> Kokkuvõte</title>
+</head>
+<body>
+<h1>Kokkuvõte kõigist koormatest</h1>
+<br>
+<form method = "POST" >
+<label for = "truckNumber" > Filtreeri autonumbri järgi: </label>
+<input type = "text" id = "truckNumber" name = "truckNumber" placeholder = "Enter car number" >
+<button type = "submit" >Filtreeri </button>
+</form>
+
+<% if (locals?.sumWeight) { %>
+<p> Kokku (kg): <%= locals?.sumWeight %> </p>
+<% } %>
+<table border = "1" >
+<thead>
+<tr>
+<th>Auto number</th>
+<th>Sisenemismass (kg)</th>
+<th>Väljasmass (kg)</th>
+<th>Veetud vilja kogus (kg)</th>
+</tr>
+</thead>
+<tbody>
+        <!-- Loop through the 'loads' array passed from the server -->
+            <% if (loads && loads.length > 0) { %>
+                <% loads.forEach(function(load) { %>
+                    <tr>
+                        <td><%= load.truck %></td>
+                        <td><%= load.weight_in %></td>
+                        <td><%= load.weight_out ? load.weight_out : 'Puudub' %></td>
+<td><%= load.weight_in - (load.weight_out || 0) %></td>
+                    </tr>
+                <% }); %>
+            <% } else { %>
+                <tr>
+                    <td colspan="4">Ei ole andmeid</td>
+                </tr>
+            <% } %>
+        </tbody>
+</table>
+<br>
+<a href = "/" > Tagasi </a>
+</body>
+</html>

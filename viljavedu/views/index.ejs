@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="et">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Koorma sisestamine</title>
+</head>
+<body>
+    <h1>Koorma sisestamine</h1>
+    <form id="loadForm" action="/addLoad" method="POST">
+        <label for="autoNumber">Auto number:</label>
+        <input type="text" id="autoNumber" name="autoNumber" required><br>
+
+        <label for="entranceWeight">Sisenemismass:</label>
+        <input type="number" step="0.01" id="entranceWeight" name="entranceWeight" required><br>
+
+        <label for="exitWeight">Väljasmass:</label>
+        <input type="number" step="0.01" id="exitWeight" name="exitWeight"><br>
+
+        <button type="submit">Sisesta koorem</button>
+    </form>
+	<a href="/summary">Vaata kõiki koormaid (Kokkuvõte)</a>
+</body>
+</html>

@@ -35,6 +35,7 @@ Esimest korda teen seda
 	</div>
 </dialog>
 <h2>Fotogalerii</h2>
+<p><%- links %></p>
 <div id="gallery" class="gallery">
 <% listData.forEach(function(image){ %>
 	<img src="<%= image.href %><%= image.filename %>" alt="<%= image.alt %>" class="thumbs" data-filename="<%= image.fileName %>">
